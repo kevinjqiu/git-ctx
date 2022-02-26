@@ -10,6 +10,7 @@ use clap::{Parser, Subcommand};
 pub enum Error {
 	MissingHeadLog,
 	MalformedCheckoutLog,
+	NoCurrentBranch,
 	IOError(std::io::Error),
 }
 
@@ -37,9 +38,10 @@ pub enum Commands {
 		limit: usize
 	},
 
-	#[clap()]
+	#[clap(alias="s")]
 	SwitchBranch {
-
+		#[clap(short, default_value="10")]
+		limit: usize
 	}
 }
 
@@ -78,7 +80,10 @@ impl Git {
 		let mut buf_reader = BufReader::new(head_file);
 		let mut content = String::new();
 		buf_reader.read_to_string(&mut content)?;
-		Ok(content)
+		match content.trim().split("/").last() {
+			Some(s) => Ok(String::from(s)),
+			None => Err(Error::NoCurrentBranch),
+		}
 	}
 
 	fn parse_head_log(&mut self) -> Result<BranchHistory, Error> {
