@@ -31,9 +31,10 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum Commands {
-	#[clap()]
+	#[clap(alias="l")]
 	ListBranches {
-
+		#[clap(short, default_value="10")]
+		limit: usize
 	},
 
 	#[clap()]
