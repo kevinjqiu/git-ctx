@@ -69,7 +69,6 @@ impl Git {
 	pub fn new() -> Self {
 		let cwd = env::current_dir().unwrap();
 		let git_folder = Git::find_first_path_with_git_folder(Some(cwd)).expect("unable to find .git folder");
-		println!("{:?}", git_folder);
 		Git { git_folder }
 	}
 
