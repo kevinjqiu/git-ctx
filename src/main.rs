@@ -6,13 +6,12 @@ fn main() {
 
     match args.command {
         git_ctx::Commands::ListBranches {  } => {
-            let _g = Git::new();
-            println!("list")
+            let mut g = Git::new();
+            println!("{:?}", g.get_recent_branches(10).unwrap());
         },
         git_ctx::Commands::SwitchBranch {  } => {
-            let mut g = Git::new();
-            // println!("{:?}", g.get_current_branch().unwrap());
-            println!("{:?}", g.get_recent_branches(0).unwrap());
+            let _g = Git::new();
+            println!("switch")
         },
     }
 }

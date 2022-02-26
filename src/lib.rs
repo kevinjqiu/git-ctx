@@ -1,4 +1,5 @@
 use log::{info};
+use std::collections::HashMap;
 use std::io::{BufReader, Read, BufRead};
 use std::{env, path::PathBuf};
 use std::path::Path;
@@ -18,11 +19,7 @@ impl From<std::io::Error> for Error {
     }
 }
 
-#[derive(Debug)]
-pub struct BranchHistory {
-	pub from: String,
-	pub to: String,
-}
+type BranchHistory = HashMap<String, u32>;
 
 #[derive(Parser)]
 #[clap(name="git-ctx")]
@@ -83,8 +80,8 @@ impl Git {
 		Ok(content)
 	}
 
-	pub fn get_recent_branches(&mut self, limit: u32) -> Result<Vec<BranchHistory>, Error> {
-		let mut ret: Vec<BranchHistory> = vec![];
+	fn parse_head_log(&mut self) -> Result<BranchHistory, Error> {
+		let mut ret: BranchHistory = BranchHistory::new();
 		let f = self.git_folder.join("logs/HEAD");
 
 		if !f.exists() {
@@ -93,6 +90,7 @@ impl Git {
 
 		let head_log_file = File::open(f)?;
 		let mut buf_reader = BufReader::new(head_log_file);
+		let mut seq = 0;
 
 		loop {
 			let mut line = String::new();
@@ -101,7 +99,6 @@ impl Git {
 				break;
 			}
 			info!("line={}", line);
-
 			match line.trim().split('\t').nth(1) {
 				Some(msg) => {
 					if !msg.starts_with("checkout: moving from ") {
@@ -115,15 +112,26 @@ impl Git {
 						return Err(Error::MalformedCheckoutLog);
 					}
 
-					ret.push(BranchHistory{
-						from: String::from(parts[0]),
-						to: String::from(parts[1]),
-					})
+					ret.insert(String::from(parts[0]), seq);
+					ret.insert(String::from(parts[1]), seq+1);
+					seq += 1;
 				},
 				None => continue,
 			}
 		}
 
 		Ok(ret)
+	}
+
+	pub fn get_recent_branches(&mut self, limit: usize) -> Result<Vec<String>, Error> {
+		let branch_history = self.parse_head_log()?;
+
+		let mut items_vec: Vec<(&String, &u32)> = branch_history.iter().collect();
+		items_vec.sort_by_key(|k| k.1);
+		items_vec.reverse();
+
+		let branches = items_vec.into_iter().map(|(branch, _seq)| branch.clone()).take(limit).collect();
+
+		Ok(branches)
 	}
 }
