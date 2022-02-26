@@ -1,7 +1,7 @@
-use std::{ops::Deref, io::{stdin}, process::Command};
+use std::{io::stdin, ops::Deref, process::Command};
 
-use git_ctx::{Cli, Git};
 use clap::Parser;
+use git_ctx::{Cli, Git};
 
 fn main() {
     let args = Cli::parse();
@@ -19,7 +19,7 @@ fn main() {
                     println!("    {}", branch);
                 }
             }
-        },
+        }
         git_ctx::Commands::SwitchBranch { limit } => {
             let mut g = Git::new();
             let branches = g.get_recent_branches(limit).unwrap();
@@ -49,6 +49,6 @@ fn main() {
                 .expect("failed to execute the git command");
             println!("{}", String::from_utf8(output.stdout).unwrap());
             eprintln!("{}", String::from_utf8(output.stderr).unwrap());
-        },
+        }
     }
 }
