@@ -1,6 +1,28 @@
+use log::{info};
+use std::io::{BufReader, Read, BufRead};
 use std::{env, path::PathBuf};
 use std::path::Path;
+use std::fs::File;
 use clap::{Parser, Subcommand};
+
+#[derive(Debug)]
+pub enum Error {
+	MissingHeadLog,
+	MalformedCheckoutLog,
+	IOError(std::io::Error),
+}
+
+impl From<std::io::Error> for Error {
+    fn from(err: std::io::Error) -> Self {
+		Error::IOError{0: err}
+    }
+}
+
+#[derive(Debug)]
+pub struct BranchHistory {
+	pub from: String,
+	pub to: String,
+}
 
 #[derive(Parser)]
 #[clap(name="git-ctx")]
@@ -51,7 +73,57 @@ impl Git {
 		Git { git_folder }
 	}
 
-	pub fn get_current_branch() -> String {
+	pub fn get_current_branch(&mut self) -> Result<String, Error> {
+		let f = self.git_folder.join("HEAD");
 
+		let head_file = File::open(f)?;
+		let mut buf_reader = BufReader::new(head_file);
+		let mut content = String::new();
+		buf_reader.read_to_string(&mut content)?;
+		Ok(content)
+	}
+
+	pub fn get_recent_branches(&mut self, limit: u32) -> Result<Vec<BranchHistory>, Error> {
+		let mut ret: Vec<BranchHistory> = vec![];
+		let f = self.git_folder.join("logs/HEAD");
+
+		if !f.exists() {
+			return Err(Error::MissingHeadLog)
+		}
+
+		let head_log_file = File::open(f)?;
+		let mut buf_reader = BufReader::new(head_log_file);
+
+		loop {
+			let mut line = String::new();
+			let bytes_read = buf_reader.read_line(&mut line)?;
+			if bytes_read == 0 {
+				break;
+			}
+			info!("line={}", line);
+
+			match line.trim().split('\t').nth(1) {
+				Some(msg) => {
+					if !msg.starts_with("checkout: moving from ") {
+						continue
+					}
+
+					let msg = &msg["checkout: moving from ".len()..msg.len()];
+
+					let parts: Vec<&str> = msg.split(" to ").collect();
+					if parts.len() != 2 {
+						return Err(Error::MalformedCheckoutLog);
+					}
+
+					ret.push(BranchHistory{
+						from: String::from(parts[0]),
+						to: String::from(parts[1]),
+					})
+				},
+				None => continue,
+			}
+		}
+
+		Ok(ret)
 	}
 }
