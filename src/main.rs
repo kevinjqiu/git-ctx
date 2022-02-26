@@ -1,4 +1,4 @@
-use std::{ops::Deref, io::stdin, process::Command};
+use std::{ops::Deref, io::{stdin, stdout, stderr}, process::Command};
 
 use git_ctx::{Cli, Git};
 use clap::Parser;
@@ -47,7 +47,8 @@ fn main() {
                 .args(["checkout", branch])
                 .output()
                 .expect("failed to execute the git command");
-            println!("{:?}", output);
+            println!("{}", String::from_utf8(output.stdout).unwrap());
+            eprintln!("{}", String::from_utf8(output.stderr).unwrap());
         },
     }
 }
