@@ -1,4 +1,4 @@
-use std::{ops::Deref, io::{stdin, stdout, stderr}, process::Command};
+use std::{ops::Deref, io::{stdin}, process::Command};
 
 use git_ctx::{Cli, Git};
 use clap::Parser;
