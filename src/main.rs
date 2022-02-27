@@ -11,7 +11,6 @@ fn main() {
             let mut g = Git::new();
             let branches = g.get_recent_branches(limit).unwrap();
             let current_branch = g.get_current_branch().unwrap();
-            println!("{}", current_branch);
             for branch in branches {
                 if branch == current_branch {
                     println!("[*] {}", branch);
