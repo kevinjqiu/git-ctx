@@ -14,9 +14,8 @@ fn main() {
             for branch in branches {
                 if branch == current_branch {
                     println!("[*] {}", branch);
-                } else {
-                    println!("    {}", branch);
                 }
+                println!("    {}", branch);
             }
         }
         git_ctx::Commands::SwitchBranch { limit } => {
