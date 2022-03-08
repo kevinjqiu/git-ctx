@@ -13,7 +13,7 @@ fn main() {
             let current_branch = g.get_current_branch().unwrap();
             for branch in branches {
                 if branch == current_branch {
-                    println!("[*] {}", branch);
+                    println!("--> {}", branch);
                 }
                 println!("    {}", branch);
             }
