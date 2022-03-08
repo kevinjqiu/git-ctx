@@ -1,6 +1,6 @@
 [package]
 name = "git-ctx"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "A git custom command to list and switch most recent branches"
 license = "MIT"
