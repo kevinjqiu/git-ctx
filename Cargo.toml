@@ -9,4 +9,6 @@ license = "MIT"
 
 [dependencies]
 clap = {version="3.1.2", features=["derive"]}
+crossterm = "0.27.0"
 log = "0.4.14"
+ratatui = "0.26.2"

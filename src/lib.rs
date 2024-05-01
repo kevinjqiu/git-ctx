@@ -43,6 +43,11 @@ pub enum Commands {
         #[clap(short, default_value = "10")]
         limit: usize,
     },
+    #[clap(alias = "u")]
+    ShowTui {
+        #[clap(short, default_value = "10")]
+        limit: usize,
+    }
 }
 
 #[derive(Debug)]
