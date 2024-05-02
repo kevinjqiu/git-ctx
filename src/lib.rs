@@ -1,3 +1,5 @@
+pub mod tui;
+
 use clap::{Parser, Subcommand};
 use log::info;
 use std::collections::HashMap;
@@ -13,6 +15,8 @@ pub enum Error {
     NoCurrentBranch,
     IOError(std::io::Error),
 }
+
+type Result<T> = core::result::Result<T, Error>;
 
 impl From<std::io::Error> for Error {
     fn from(err: std::io::Error) -> Self {
@@ -78,7 +82,7 @@ impl Git {
         Git { git_folder }
     }
 
-    pub fn get_current_branch(&mut self) -> Result<String, Error> {
+    pub fn get_current_branch(&mut self) -> Result<String> {
         let f = self.git_folder.join("HEAD");
 
         let head_file = File::open(f)?;
@@ -91,7 +95,7 @@ impl Git {
         }
     }
 
-    fn parse_head_log(&mut self) -> Result<BranchHistory, Error> {
+    fn parse_head_log(&mut self) -> Result<BranchHistory> {
         let mut ret: BranchHistory = BranchHistory::new();
         let f = self.git_folder.join("logs/HEAD");
 
@@ -134,7 +138,7 @@ impl Git {
         Ok(ret)
     }
 
-    pub fn get_recent_branches(&mut self, limit: usize) -> Result<Vec<String>, Error> {
+    pub fn get_recent_branches(&mut self, limit: usize) -> Result<Vec<String>> {
         let branch_history = self.parse_head_log()?;
 
         let mut items_vec: Vec<(&String, &u32)> = branch_history.iter().collect();
