@@ -51,6 +51,7 @@ fn main() -> std::io::Result<()> {
             Ok(())
         }
         git_ctx::Commands::ShowTui { limit } => {
+            let _limit = limit;
             git_ctx::tui::run_tui().unwrap();
             Ok(())
         }

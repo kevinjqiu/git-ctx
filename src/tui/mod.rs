@@ -1,3 +1,5 @@
+mod app;
+
 use std::io::stdout;
 use crossterm::{ExecutableCommand};
 use crossterm::event;
@@ -10,17 +12,17 @@ use ratatui::prelude::Stylize;
 use crate::Result;
 
 pub fn run_tui() -> Result<()> {
-    stdout().execute(EnterAlternateScreen)?;
-    enable_raw_mode()?;
+    // stdout().execute(EnterAlternateScreen)?;
+    // enable_raw_mode()?;
     let mut terminal = Terminal::new(CrosstermBackend::new(stdout()))?;
-    terminal.clear()?;
+    // terminal.clear()?;
 
     loop {
         terminal.draw(|frame| {
             let area = frame.size();
 
             frame.render_widget(
-                Paragraph::new("Hello Ratatui! (press 'q' to exit)").white().on_blue(),
+                Paragraph::new("Hello Ratatui! (press 'q' to exit)"),
                 area,
             )
 
@@ -35,7 +37,7 @@ pub fn run_tui() -> Result<()> {
         }
     }
 
-    stdout().execute(LeaveAlternateScreen)?;
-    disable_raw_mode()?;
+    // stdout().execute(LeaveAlternateScreen)?;
+    // disable_raw_mode()?;
     Ok(())
 }

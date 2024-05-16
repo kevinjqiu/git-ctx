@@ -12,3 +12,4 @@ clap = {version="3.1.2", features=["derive"]}
 crossterm = "0.27.0"
 log = "0.4.14"
 ratatui = "0.26.2"
+tuirealm = { version = "^1.9.0", default-features = false, features = ["ratatui", "derive", "crossterm"] }
