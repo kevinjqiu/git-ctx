@@ -54,7 +54,7 @@ pub enum Commands {
     },
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Git {
     git_folder: PathBuf,
 }
@@ -73,6 +73,10 @@ impl Git {
             }
         }
         None
+    }
+
+    pub fn default() -> Self {
+        Git::new()
     }
 
     pub fn new() -> Self {
