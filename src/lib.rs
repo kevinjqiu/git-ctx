@@ -51,7 +51,7 @@ pub enum Commands {
     ShowTui {
         #[clap(short, default_value = "10")]
         limit: usize,
-    }
+    },
 }
 
 #[derive(Debug)]

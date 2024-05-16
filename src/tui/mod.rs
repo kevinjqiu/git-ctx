@@ -1,15 +1,17 @@
 mod app;
 
-use std::io::stdout;
-use crossterm::{ExecutableCommand};
+use crate::Result;
 use crossterm::event;
 use crossterm::event::{KeyCode, KeyEventKind};
-use crossterm::terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen};
+use crossterm::terminal::{
+    disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen,
+};
+use crossterm::ExecutableCommand;
 use ratatui::backend::CrosstermBackend;
-use ratatui::Terminal;
-use ratatui::widgets::Paragraph;
 use ratatui::prelude::Stylize;
-use crate::Result;
+use ratatui::widgets::Paragraph;
+use ratatui::Terminal;
+use std::io::stdout;
 
 pub fn run_tui() -> Result<()> {
     // stdout().execute(EnterAlternateScreen)?;
@@ -21,11 +23,7 @@ pub fn run_tui() -> Result<()> {
         terminal.draw(|frame| {
             let area = frame.size();
 
-            frame.render_widget(
-                Paragraph::new("Hello Ratatui! (press 'q' to exit)"),
-                area,
-            )
-
+            frame.render_widget(Paragraph::new("Hello Ratatui! (press 'q' to exit)"), area)
         })?;
 
         if event::poll(std::time::Duration::from_millis(16))? {

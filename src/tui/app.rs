@@ -1,9 +1,11 @@
 use ratatui::layout::Alignment;
 use ratatui::prelude::{Color, Rect, Style};
-use ratatui::widgets::{Paragraph};
-use tuirealm::{Application, Attribute, AttrValue, Frame, MockComponent, NoUserEvent, Props, State, StateValue};
+use ratatui::widgets::Paragraph;
 use tuirealm::command::{Cmd, CmdResult};
 use tuirealm::props::{Borders, TextModifiers};
+use tuirealm::{
+    Application, AttrValue, Attribute, Frame, MockComponent, NoUserEvent, Props, State, StateValue,
+};
 
 struct Counter {
     props: Props,
@@ -15,14 +17,14 @@ impl Default for Counter {
         return Self {
             props: Props::default(),
             states: OwnStates::default(),
-        }
+        };
     }
 }
 
 impl Counter {
     pub fn label<S>(mut self, label: S) -> Self
     where
-    S: AsRef<str>,
+        S: AsRef<str>,
     {
         self.attr(
             Attribute::Title,
@@ -60,7 +62,6 @@ impl Counter {
         self.attr(Attribute::Borders, AttrValue::Borders(b));
         self
     }
-
 }
 
 impl MockComponent for Counter {
@@ -147,7 +148,7 @@ struct OwnStates {
 
 impl Default for OwnStates {
     fn default() -> Self {
-        return Self { counter: 0 }
+        return Self { counter: 0 };
     }
 }
 
@@ -163,6 +164,4 @@ pub enum Id {
     LetterCounter,
 }
 
-fn init_app() -> Application<Id, Msg, NoUserEvent> {
-
-}
+fn init_app() -> Application<Id, Msg, NoUserEvent> {}
