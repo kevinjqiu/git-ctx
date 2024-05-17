@@ -34,7 +34,7 @@ impl App {
             terminal.draw(|frame| self.render_frame(frame))?;
             self.handle_events()?;
         }
-        Ok(self.selected_branch)
+        Ok(self.selected_branch.clone())
     }
 
     fn render_frame(&mut self, frame: &mut Frame) {
