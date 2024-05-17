@@ -9,8 +9,8 @@ use ratatui::{
 };
 use std::{
     cmp::{max, min},
-    io::{self, stdout, Stdout},
-    process::Command,
+    io::{self, stdout, BufRead, BufReader, Stderr, Stdout},
+    process::{Command, Stdio},
 };
 
 use ratatui::{backend::CrosstermBackend, Frame, Terminal};
@@ -114,12 +114,25 @@ pub fn run_tui(limit: usize) -> io::Result<()> {
     match app_result {
         Some(branch) => {
             if branch != app.current_branch {
-                let output = Command::new("git")
+                let mut cmd = Command::new("git")
                     .args(["checkout", &branch])
-                    .output()
-                    .expect("failed to execute the git command");
-                println!("{}", String::from_utf8(output.stdout).unwrap());
-                eprintln!("{}", String::from_utf8(output.stderr).unwrap());
+                    .stdout(Stdio::piped())
+                    .stderr(Stdio::piped())
+                    .spawn()
+                    .unwrap();
+                let stdout_reader = BufReader::new(cmd.stdout.as_mut().unwrap());
+                let stdout_lines = stdout_reader.lines();
+
+                for line in stdout_lines {
+                    println!("{}", line.unwrap());
+                }
+
+                let stderr_reader = BufReader::new(cmd.stderr.as_mut().unwrap());
+                let stderr_lines = stderr_reader.lines();
+
+                for line in stderr_lines {
+                    eprint!("{}", line.unwrap());
+                }
             }
         }
         None => {}
