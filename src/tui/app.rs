@@ -9,7 +9,7 @@ use ratatui::{
 };
 use std::{
     cmp::{max, min},
-    io::{self, stdout, BufRead, BufReader, Stderr, Stdout},
+    io::{self, stdout, BufRead, BufReader, Stdout},
     process::{Command, Stdio},
 };
 
