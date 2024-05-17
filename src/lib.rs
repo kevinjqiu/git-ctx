@@ -1,3 +1,5 @@
+pub mod tui;
+
 use clap::{Parser, Subcommand};
 use log::info;
 use std::collections::HashMap;
@@ -14,6 +16,8 @@ pub enum Error {
     IOError(std::io::Error),
 }
 
+type Result<T> = core::result::Result<T, Error>;
+
 impl From<std::io::Error> for Error {
     fn from(err: std::io::Error) -> Self {
         Error::IOError { 0: err }
@@ -27,7 +31,7 @@ type BranchHistory = HashMap<String, u32>;
 #[clap(about="git context switching", long_about=None)]
 pub struct Cli {
     #[clap(subcommand)]
-    pub command: Commands,
+    pub command: Option<Commands>,
 }
 
 #[derive(Subcommand)]
@@ -43,9 +47,14 @@ pub enum Commands {
         #[clap(short, default_value = "10")]
         limit: usize,
     },
+    #[clap(alias = "u")]
+    ShowTui {
+        #[clap(short, default_value = "10")]
+        limit: usize,
+    },
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Git {
     git_folder: PathBuf,
 }
@@ -66,6 +75,10 @@ impl Git {
         None
     }
 
+    pub fn default() -> Self {
+        Git::new()
+    }
+
     pub fn new() -> Self {
         let cwd = env::current_dir().unwrap();
         let git_folder =
@@ -73,7 +86,7 @@ impl Git {
         Git { git_folder }
     }
 
-    pub fn get_current_branch(&mut self) -> Result<String, Error> {
+    pub fn get_current_branch(&mut self) -> Result<String> {
         let f = self.git_folder.join("HEAD");
 
         let head_file = File::open(f)?;
@@ -86,7 +99,7 @@ impl Git {
         }
     }
 
-    fn parse_head_log(&mut self) -> Result<BranchHistory, Error> {
+    fn parse_head_log(&mut self) -> Result<BranchHistory> {
         let mut ret: BranchHistory = BranchHistory::new();
         let f = self.git_folder.join("logs/HEAD");
 
@@ -129,7 +142,7 @@ impl Git {
         Ok(ret)
     }
 
-    pub fn get_recent_branches(&mut self, limit: usize) -> Result<Vec<String>, Error> {
+    pub fn get_recent_branches(&mut self, limit: usize) -> Result<Vec<String>> {
         let branch_history = self.parse_head_log()?;
 
         let mut items_vec: Vec<(&String, &u32)> = branch_history.iter().collect();

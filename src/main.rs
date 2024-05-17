@@ -3,11 +3,11 @@ use std::{io::stdin, ops::Deref, process::Command};
 use clap::Parser;
 use git_ctx::{Cli, Git};
 
-fn main() {
+fn main() -> std::io::Result<()> {
     let args = Cli::parse();
 
     match args.command {
-        git_ctx::Commands::ListBranches { limit } => {
+        Some(git_ctx::Commands::ListBranches { limit }) => {
             let mut g = Git::new();
             let branches = g.get_recent_branches(limit).unwrap();
             let current_branch = g.get_current_branch().unwrap();
@@ -17,8 +17,9 @@ fn main() {
                 }
                 println!("    {}", branch);
             }
+            Ok(())
         }
-        git_ctx::Commands::SwitchBranch { limit } => {
+        Some(git_ctx::Commands::SwitchBranch { limit }) => {
             let mut g = Git::new();
             let branches = g.get_recent_branches(limit).unwrap();
             let current_branch = g.get_current_branch().unwrap();
@@ -47,6 +48,15 @@ fn main() {
                 .expect("failed to execute the git command");
             println!("{}", String::from_utf8(output.stdout).unwrap());
             eprintln!("{}", String::from_utf8(output.stderr).unwrap());
+            Ok(())
+        }
+        Some(git_ctx::Commands::ShowTui { limit }) => {
+            git_ctx::tui::run_tui(limit).unwrap();
+            Ok(())
+        }
+        None => {
+            git_ctx::tui::run_tui(20).unwrap();
+            Ok(())
         }
     }
 }
