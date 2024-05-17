@@ -34,6 +34,7 @@ impl App {
             terminal.draw(|frame| self.render_frame(frame))?;
             self.handle_events()?;
         }
+        terminal.clear()?;
         Ok(self.selected_branch.clone())
     }
 
