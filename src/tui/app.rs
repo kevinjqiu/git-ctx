@@ -10,30 +10,31 @@ use ratatui::{
 use std::{
     cmp::{max, min},
     io::{self, stdout, Stdout},
+    process::Command,
 };
 
-use ratatui::{
-    backend::CrosstermBackend, buffer::Buffer, layout::Rect, widgets::Widget, Frame, Terminal,
-};
+use ratatui::{backend::CrosstermBackend, Frame, Terminal};
 
 use crate::Git;
 
 #[derive(Debug, Default)]
 pub struct App {
     branches: Vec<String>,
+    current_branch: String,
     selected_index: i8,
+    selected_branch: Option<String>,
     exit: bool,
 }
 
 pub type Tui = Terminal<CrosstermBackend<Stdout>>;
 
 impl App {
-    pub fn run(&mut self, terminal: &mut Tui) -> io::Result<()> {
+    pub fn run(&mut self, terminal: &mut Tui) -> io::Result<Option<String>> {
         while !self.exit {
             terminal.draw(|frame| self.render_frame(frame))?;
             self.handle_events()?;
         }
-        Ok(())
+        Ok(self.selected_branch)
     }
 
     fn render_frame(&mut self, frame: &mut Frame) {
@@ -65,6 +66,10 @@ impl App {
             KeyCode::Down | KeyCode::Char('j') => {
                 self.selected_index = min(self.selected_index + 1, (self.branches.len() - 1) as i8);
             }
+            KeyCode::Enter => {
+                self.selected_branch = Some(self.branches[self.selected_index as usize].clone());
+                self.exit();
+            }
             _ => {}
         }
     }
@@ -94,8 +99,22 @@ pub fn run_tui() -> io::Result<()> {
     let mut app = App::default();
     let mut git = Git::default();
     app.branches = git.get_recent_branches(10).unwrap();
-
-    let app_result = app.run(&mut terminal);
+    app.current_branch = git.get_current_branch().unwrap();
+    let app_result = app.run(&mut terminal)?;
     restore()?;
-    app_result
+
+    match app_result {
+        Some(branch) => {
+            if branch != app.current_branch {
+                let output = Command::new("git")
+                    .args(["checkout", &branch])
+                    .output()
+                    .expect("failed to execute the git command");
+                println!("{}", String::from_utf8(output.stdout).unwrap());
+                eprintln!("{}", String::from_utf8(output.stderr).unwrap());
+            }
+        }
+        None => {}
+    }
+    Ok(())
 }
