@@ -7,7 +7,7 @@ fn main() -> std::io::Result<()> {
     let args = Cli::parse();
 
     match args.command {
-        git_ctx::Commands::ListBranches { limit } => {
+        Some(git_ctx::Commands::ListBranches { limit }) => {
             let mut g = Git::new();
             let branches = g.get_recent_branches(limit).unwrap();
             let current_branch = g.get_current_branch().unwrap();
@@ -19,7 +19,7 @@ fn main() -> std::io::Result<()> {
             }
             Ok(())
         }
-        git_ctx::Commands::SwitchBranch { limit } => {
+        Some(git_ctx::Commands::SwitchBranch { limit }) => {
             let mut g = Git::new();
             let branches = g.get_recent_branches(limit).unwrap();
             let current_branch = g.get_current_branch().unwrap();
@@ -50,9 +50,12 @@ fn main() -> std::io::Result<()> {
             eprintln!("{}", String::from_utf8(output.stderr).unwrap());
             Ok(())
         }
-        git_ctx::Commands::ShowTui { limit } => {
-            let _limit = limit;
-            git_ctx::tui::run_tui().unwrap();
+        Some(git_ctx::Commands::ShowTui { limit }) => {
+            git_ctx::tui::run_tui(limit).unwrap();
+            Ok(())
+        }
+        None => {
+            git_ctx::tui::run_tui(20).unwrap();
             Ok(())
         }
     }

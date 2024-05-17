@@ -31,7 +31,7 @@ type BranchHistory = HashMap<String, u32>;
 #[clap(about="git context switching", long_about=None)]
 pub struct Cli {
     #[clap(subcommand)]
-    pub command: Commands,
+    pub command: Option<Commands>,
 }
 
 #[derive(Subcommand)]

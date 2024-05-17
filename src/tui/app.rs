@@ -79,12 +79,12 @@ impl App {
     }
 }
 
-fn init() -> io::Result<Tui> {
+fn init(limit: usize) -> io::Result<Tui> {
     enable_raw_mode()?;
     Terminal::with_options(
         CrosstermBackend::new(stdout()),
         TerminalOptions {
-            viewport: Viewport::Inline(10),
+            viewport: Viewport::Inline(limit as u16),
         },
     )
 }
@@ -94,12 +94,20 @@ fn restore() -> io::Result<()> {
     Ok(())
 }
 
-pub fn run_tui() -> io::Result<()> {
-    let mut terminal = init()?;
-    let mut app = App::default();
+pub fn run_tui(limit: usize) -> io::Result<()> {
+    let mut terminal = init(limit)?;
     let mut git = Git::default();
-    app.branches = git.get_recent_branches(10).unwrap();
-    app.current_branch = git.get_current_branch().unwrap();
+    let branches = git.get_recent_branches(limit).unwrap();
+    let current_branch = git.get_current_branch().unwrap();
+
+    let mut app = App {
+        branches,
+        current_branch,
+        selected_index: 0,
+        selected_branch: None,
+        exit: false,
+    };
+
     let app_result = app.run(&mut terminal)?;
     restore()?;
 
