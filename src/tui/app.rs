@@ -5,7 +5,10 @@ use crossterm::{
 
 use ratatui::{
     prelude::*,
-    widgets::{List, ListDirection, ListState},
+    widgets::{
+        block::{Position, Title},
+        Block, Borders, List, ListDirection, ListState,
+    },
 };
 use std::{
     cmp::{max, min},
@@ -40,7 +43,24 @@ impl App {
 
     fn render_frame(&mut self, frame: &mut Frame) {
         let mut state = ListState::default().with_selected(Some(self.selected_index as usize));
+        let keybinding_help = Title::from(Line::from(vec![
+            "<j>/<k> ".bold(),
+            "or ".into(),
+            "<up>/<down> ".bold(),
+            "to navigate, ".into(),
+            "<enter> ".bold(),
+            "to select, ".into(),
+            "<q>".bold(),
+            " to quit".into(),
+        ]));
         let list = List::new(self.branches.clone())
+            .block(
+                Block::default().borders(Borders::NONE).title(
+                    keybinding_help
+                        .alignment(Alignment::Left)
+                        .position(Position::Bottom),
+                ),
+            )
             .highlight_style(Style::default())
             .highlight_symbol(">> ")
             .repeat_highlight_symbol(true)
@@ -115,6 +135,8 @@ pub fn run_tui(limit: usize) -> io::Result<()> {
     match app_result {
         Some(branch) => {
             if branch != app.current_branch {
+                println!("Switching to branch: {:?}", branch);
+
                 let mut cmd = Command::new("git")
                     .args(["checkout", &branch])
                     .stdout(Stdio::piped())
