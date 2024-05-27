@@ -36,17 +36,6 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum Commands {
-    #[clap(alias = "l")]
-    ListBranches {
-        #[clap(short, default_value = "10")]
-        limit: usize,
-    },
-
-    #[clap(alias = "s")]
-    SwitchBranch {
-        #[clap(short, default_value = "10")]
-        limit: usize,
-    },
     #[clap(alias = "u")]
     ShowTui {
         #[clap(short, default_value = "10")]
